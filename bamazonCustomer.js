@@ -62,7 +62,7 @@ connection.connect(function (err) {
                             ],
                             function (err, res) {
                                 if (err) throw err;
-                                total = (answer.amount * price);
+                                total = (answer.amount * price).toFixed(2);
                                 
                                 // Once the update goes through, show the customer the total cost of their purchase.
                                 console.log("Grand Total: $" + total);
