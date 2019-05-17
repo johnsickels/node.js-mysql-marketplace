@@ -20,6 +20,7 @@ connection.connect(function (err) {
     connection.query("SELECT item_id, product_name, price FROM products", function (err, res) {
         if (err) throw err;
         console.table(res);
+        
         // The app should then prompt users with two messages.
         inquirer
             .prompt([
@@ -27,19 +28,35 @@ connection.connect(function (err) {
                     // The first should ask them the ID of the product they would like to buy.
                     name: "choice",
                     type: "input",
-                    message: "Please enter the ID of the product you would like to buy: "
+                    message: "Please enter the ID of the product you would like to buy: ",
+                    validate: function (value) {
+                        if (value > res.length || value < 0) {
+                            return false;
+                        }
+                        if (isNaN(value) === false) {
+                            return true;
+                        }
+                        return false;
+                        
+                    }
                 },
                 {
                     // The second message should ask how many units of the product they would like to buy.
                     name: "amount",
                     type: "input",
-                    message: "How many units of the product would you like to buy?"
+                    message: "How many units of the product would you like to buy?",
+                    validate: function (value) {
+                        if (isNaN(value) === false) {
+                            return true;
+                        }
+                        return false;
+                    }
                 }
             ])
             .then(function (answer) {
                 // Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
-                console.log("Item ID: " + answer.choice);
-                console.log("Units to purchase: " + answer.amount);
+                // console.log("Item ID: " + answer.choice);
+                // console.log("Units to purchase: " + answer.amount);
                 connection.query("SELECT * FROM products WHERE ?", { item_id: answer.choice }, function (err, res) {
                     if (err) throw err;
                     stockQuantity = res[0].stock_quantity;
@@ -63,13 +80,13 @@ connection.connect(function (err) {
                             function (err, res) {
                                 if (err) throw err;
                                 total = (answer.amount * price).toFixed(2);
-                                
+
                                 // Once the update goes through, show the customer the total cost of their purchase.
                                 console.log("Grand Total: $" + total);
                             });
                     };
                     connection.end();
-                });   
+                });
             });
     });
 });
