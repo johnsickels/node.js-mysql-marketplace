@@ -4,6 +4,7 @@ var inquirer = require("inquirer");
 var stockQuantity;
 var price;
 var total;
+var sales;
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -60,6 +61,7 @@ connection.connect(function (err) {
                 connection.query("SELECT * FROM products WHERE ?", { item_id: answer.choice }, function (err, res) {
                     if (err) throw err;
                     stockQuantity = res[0].stock_quantity;
+                    sales = res[0].product_sales;
                     price = res[0].price;
                     // console.log("Current quantity: " + stockQuantity);
                     // If not, the app should log a phrase like Insufficient quantity!, and then prevent the order from going through.
@@ -68,21 +70,23 @@ connection.connect(function (err) {
                     } else {
                         // However, if your store does have enough of the product, you should fulfill the customer's order.
                         // This means updating the SQL database to reflect the remaining quantity.
+                        total = (answer.amount * price).toFixed(2);
                         connection.query("UPDATE products SET ? WHERE ?",
                             [
                                 {
-                                    stock_quantity: (stockQuantity - answer.amount)
+                                    stock_quantity: (stockQuantity - answer.amount),
+                                    product_sales: (parseInt(total) + sales)
                                 },
                                 {
                                     item_id: answer.choice
                                 }
                             ],
-                            function (err, res) {
+                            function (err) {
                                 if (err) throw err;
-                                total = (answer.amount * price).toFixed(2);
+                                
 
                                 // Once the update goes through, show the customer the total cost of their purchase.
-                                console.log("Grand Total: $" + total);
+                                console.log("Thanks for Shopping at Bamazon! \nGrand Total: $" + total);
                             });
                     };
                     connection.end();
