@@ -76,21 +76,75 @@ connection.connect(function (err) {
                         }
                     ])
                         .then(function (answer) {
+                            var chosenItem;
+                            for (var i = 0; i < res.length; i++) {
+                                if (res[i].product_name === answer.product) {
+                                    chosenItem = res[i];
+                                }
+                            }
                             connection.query("UPDATE products SET ? WHERE ?",
                                 [
                                     {
-                                        stock_quantity: answer.amount
+                                        stock_quantity: (parseInt(answer.amount) + chosenItem.stock_quantity)
                                     },
                                     {
                                         product_name: answer.product
                                     }
-                                ])
-                        })
-                })
-
+                                ]);
+                                connection.end();
+                        });
+                });
             } else if (answer.managerDuty === "Add New Product") {
                 console.log("Here's a new product");
-
+                inquirer
+                    .prompt([
+                        {
+                            name: "product",
+                            type: "input",
+                            message: "Input product name:"
+                        },
+                        {
+                            name: "department",
+                            type: "input",
+                            message: "Input department"
+                        },
+                        {
+                            name: "price",
+                            type: "input",
+                            message: "Input price",
+                            validate: function(value) {
+                                if (isNaN(value) === false) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        },
+                        {
+                            name: "quantity",
+                            type: "input",
+                            message: "Input stock quantity",
+                            validate: function(value) {
+                                if (isNaN(value) === false) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        }
+                    ])
+                    .then(function(answer) {
+                        connection.query("INSERT INTO products SET ?",
+                        {
+                            product_name: answer.product,
+                            department_name: answer.department,
+                            price: answer.price,
+                            stock_quantity: answer.quantity
+                        },
+                        function(err) {
+                            if (err) throw err;
+                            console.log("Product added successfully");
+                            connection.end();
+                        })
+                    })
             }
         });
 
