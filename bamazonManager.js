@@ -133,6 +133,7 @@ function addToCurrent() {
                         product_name: answer.product
                     }
                 ]);
+                console.log("Product stock updated");
                 connection.end();
             });
     });
@@ -145,11 +146,9 @@ function viewLowInventory() {
             throw err;
         if (res.length === 0) {
             console.log("Inventory fully stocked!");
-        }
-        else {
+        } else {
             console.table(res);
         }
-        ;
         connection.end();
     });
 }
