@@ -62,3 +62,5 @@ This app will require the MySQL and Inquirer npm packages in the GitHub repo--th
 ## Bamazon Links:
 
 ![Bamazon](Images/bamazon.gif)
+
+![Bamazon](Images/bamazonManager.gif)
